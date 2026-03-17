@@ -52,3 +52,48 @@ def read_contrato(contrato_id: int, db: Session = Depends(get_db)):
     if db_contrato is None:
         raise HTTPException(status_code=404, detail="Contrato no encontrado")
     return db_contrato
+
+# ---- Endpoints Complementarios (Pruebas) ----
+@app.post("/usuarios/{usuario_id}/agregar_saldo", response_model=schemas.Usuario)
+def agregar_saldo(usuario_id: int, monto: float, db: Session = Depends(get_db)):
+    usuario = crud.get_usuario(db, usuario_id)
+    if not usuario:
+         raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    usuario.saldo_billetera += monto
+    db.commit()
+    db.refresh(usuario)
+    return usuario
+
+# ---- Endpoints de Hitos ----
+@app.post("/contratos/{contrato_id}/hitos/", response_model=schemas.HitoObra)
+def create_hito_para_contrato(contrato_id: int, hito: schemas.HitoObraCreate, db: Session = Depends(get_db)):
+    db_contrato = crud.get_contrato(db, contrato_id=contrato_id)
+    if not db_contrato:
+        raise HTTPException(status_code=404, detail="Contrato no encontrado")
+    return crud.create_hito_obra(db=db, hito=hito, contrato_id=contrato_id)
+
+# ---- Flujo 1: Fondear Contrato (Escrow) ----
+@app.post("/contratos/{contrato_id}/fondear", response_model=schemas.Contrato)
+def fondear_contrato(contrato_id: int, db: Session = Depends(get_db)):
+    contrato, error = crud.fondear_contrato(db, contrato_id=contrato_id)
+    if error:
+        raise HTTPException(status_code=400, detail=error)
+    return contrato
+
+# ---- Flujo 2: Aprobar y Pagar Hito ----
+
+# El maestro sube la evidencia o marca como "Listo para revisión"
+@app.post("/hitos/{hito_id}/enviar_revision", response_model=schemas.HitoObra)
+def enviar_hito_revision(hito_id: int, db: Session = Depends(get_db)):
+    hito, error = crud.enviar_hito_a_revision(db, hito_id=hito_id)
+    if error:
+         raise HTTPException(status_code=400, detail=error)
+    return hito
+
+# El cliente revisa la evidencia y si está de acuerdo, aprueba (Paga)
+@app.post("/hitos/{hito_id}/aprobar", response_model=schemas.HitoObra)
+def aprobar_hito(hito_id: int, db: Session = Depends(get_db)):
+    hito_pagado, error = crud.aprobar_y_pagar_hito(db, hito_id=hito_id)
+    if error:
+         raise HTTPException(status_code=400, detail=error)
+    return hito_pagado
