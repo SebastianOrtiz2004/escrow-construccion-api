@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: escrow_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: escrow_user
+      POSTGRES_PASSWORD: securepassword123
+      POSTGRES_DB: escrow_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    container_name: escrow_fastapi
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    environment:
+      # Construimos la URL de conexión usando las credenciales definidas en el servicio db
+      - DATABASE_URL=postgresql+psycopg2://escrow_user:securepassword123@db:5432/escrow_db
+
+volumes:
+  postgres_data:

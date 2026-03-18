@@ -1,6 +1,9 @@
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from typing import List
+import os
 
 import crud, models, schemas
 from database import SessionLocal, engine, get_db
@@ -10,7 +13,19 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="MVP Escrow Construcción")
 
+# Crear directorio estático si no existe (para evitar errores al iniciar)
+if not os.path.exists("static"):
+    os.makedirs("static")
+
+# Montar carpeta de archivos estáticos
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/", include_in_schema=False)
+def serve_frontend():
+    return FileResponse("static/index.html")
+
 # ---- Endpoints de Usuarios ----
+
 
 @app.post("/usuarios/", response_model=schemas.Usuario)
 def create_usuario(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db)):
@@ -26,6 +41,13 @@ def read_usuario(usuario_id: int, db: Session = Depends(get_db)):
     if db_usuario is None:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return db_usuario
+
+@app.get("/usuarios/{usuario_id}/contratos", response_model=List[schemas.Contrato])
+def read_contratos_usuario(usuario_id: int, db: Session = Depends(get_db)):
+    usuario = crud.get_usuario(db, usuario_id=usuario_id)
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return crud.get_contratos_por_usuario(db, usuario_id=usuario_id)
 
 # ---- Endpoints de Contratos ----
 

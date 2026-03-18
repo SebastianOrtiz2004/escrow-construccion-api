@@ -32,6 +32,8 @@ class Contrato(Base):
     __tablename__ = "contratos"
 
     id = Column(Integer, primary_key=True, index=True)
+    titulo = Column(String, nullable=False, default="Proyecto de Construcción")
+    descripcion = Column(String, nullable=True)
     cliente_id = Column(Integer, ForeignKey("usuarios.id"))
     maestro_id = Column(Integer, ForeignKey("usuarios.id"))
     estado = Column(Enum(EstadoContratoEnum), default=EstadoContratoEnum.BORRADOR)
