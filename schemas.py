@@ -34,6 +34,8 @@ class HitoObra(HitoObraBase):
 
 # ---- Esquemas de Contrato ----
 class ContratoBase(BaseModel):
+    titulo: str
+    descripcion: str
     cliente_id: int
     maestro_id: int
 

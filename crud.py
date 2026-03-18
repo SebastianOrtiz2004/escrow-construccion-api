@@ -22,8 +22,18 @@ def get_contrato(db: Session, contrato_id: int):
 def get_contratos(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Contrato).offset(skip).limit(limit).all()
 
+def get_contratos_por_usuario(db: Session, usuario_id: int):
+    return db.query(models.Contrato).filter(
+        (models.Contrato.cliente_id == usuario_id) | (models.Contrato.maestro_id == usuario_id)
+    ).all()
+
 def create_contrato(db: Session, contrato: schemas.ContratoCreate):
-    db_contrato = models.Contrato(cliente_id=contrato.cliente_id, maestro_id=contrato.maestro_id)
+    db_contrato = models.Contrato(
+        titulo=contrato.titulo,
+        descripcion=contrato.descripcion,
+        cliente_id=contrato.cliente_id, 
+        maestro_id=contrato.maestro_id
+    )
     db.add(db_contrato)
     db.commit()
     db.refresh(db_contrato)

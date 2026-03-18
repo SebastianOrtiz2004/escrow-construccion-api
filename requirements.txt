@@ -1,4 +1,4 @@
-fastapi
-uvicorn
+fastapi[all]
 sqlalchemy
 pydantic
+psycopg2-binary

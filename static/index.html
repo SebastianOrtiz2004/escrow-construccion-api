@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escrow MVP - Dashboard Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="bg-animated">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Login Wrapper (Simulación de Sesión) -->
+    <div id="login-screen" class="screen active">
+        <div class="login-card glass">
+            <h2>Bienvenido a EscrowBuilder 🏛️</h2>
+            <p>Selecciona tu cuenta o crea una nueva para entrar al simulador de fideicomiso.</p>
+            
+            <div class="form-control">
+                <label>Iniciar Sesión Como:</label>
+                <div class="flex-row">
+                    <select id="loginSelect"></select>
+                    <button class="btn btn-primary" onclick="login()">Entrar</button>
+                </div>
+            </div>
+
+            <hr class="separator">
+
+            <div class="form-control">
+                <label>O Crear Nueva Cuenta:</label>
+                <input type="text" id="nuevoNombre" placeholder="Tu Nombre">
+                <select id="nuevoRol">
+                    <option value="CLIENTE">Soy Cliente (Quiero construir)</option>
+                    <option value="MAESTRO">Soy Maestro (Constructora)</option>
+                </select>
+                <button class="btn btn-secondary w-full mt-2" onclick="crearUsuario()">Crear Cuenta</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboard-screen" class="screen">
+        <header class="glass-header">
+            <div class="header-container">
+                <div class="logo">🏛️ EscrowBuilder</div>
+                <div class="user-profile">
+                    <span id="headerName" class="badge"></span>
+                    <button class="btn btn-small" onclick="logout()">Cerrar Sesión</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-container">
+            <!-- Sidebar: Billetera -->
+            <aside class="wallet-panel glass">
+                <h3>Mi Billetera Virtual 💸</h3>
+                <div class="balance-display">
+                    $<span id="walletBalance">0.00</span>
+                </div>
+                <div class="recharge-section">
+                    <input type="number" id="recargaMonto" placeholder="Ingresa monto a recargar (USD)">
+                    <button class="btn btn-success w-full mt-2" onclick="recargarBilletera()">Recargar Saldo</button>
+                </div>
+                <div class="role-badge mt-4" id="roleBadge"></div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <section class="content-panel">
+                
+                <!-- Sólo visible para CLIENTE: Crear Contrato -->
+                <div id="creatorPanel" class="glass card hidden">
+                    <h3>Nuevo Proyecto / Contrato</h3>
+                    <div class="grid-form">
+                        <input type="text" id="cTitulo" placeholder="Títúlo del Proyecto (Ej. Remodelación Cocina)">
+                        <input type="text" id="cDesc" placeholder="Detalles de la obra">
+                        <select id="cMaestroSelect">
+                            <option value="">-- Selecciona un Maestro Contratista --</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="crearContrato()">Formalizar Contrato</button>
+                    </div>
+                </div>
+
+                <div class="header-with-actions">
+                    <h2>Mis Contratos Activos</h2>
+                    <button class="btn btn-small btn-secondary" onclick="cargarDashboard()">Actualizar 🔄</button>
+                </div>
+
+                <!-- Lista de Contratos -->
+                <div id="contractsList" class="contracts-grid">
+                    <!-- Cards se insertan por JS -->
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals (Creación de Hitos, etc) -->
+    <div id="hitoModal" class="modal">
+        <div class="modal-content glass">
+            <h3>Agregar Hito de Pago</h3>
+            <p id="hitoModalText"></p>
+            <input type="text" id="hDesc" placeholder="Descripción del hito (Ej. Cimientos terminados)">
+            <input type="number" id="hMonto" placeholder="Monto a pagar (USD)">
+            <div class="flex-row mt-4">
+                <button class="btn btn-primary" onclick="guardarHito()">Añadir</button>
+                <button class="btn" onclick="cerrarModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/static/app.js"></script>
+</body>
+</html>
